@@ -1,24 +1,47 @@
 {
   "main": {
-    "id": "d4b6f8de2a7eba5a",
+    "id": "6bb186a4250cac62",
     "type": "split",
     "children": [
       {
-        "id": "a275ca717d510cb8",
+        "id": "97ada1aaafb250ef",
         "type": "tabs",
+        "dimension": 11.148272017837236,
         "children": [
           {
-            "id": "cacd9d940f6c1ef8",
+            "id": "1c84df9e32531b83",
+            "type": "leaf",
+            "state": {
+              "type": "outline",
+              "state": {
+                "file": "ret.md",
+                "followCursor": false,
+                "showSearch": false,
+                "searchQuery": ""
+              },
+              "icon": "lucide-list",
+              "title": "ret 的大纲"
+            }
+          }
+        ]
+      },
+      {
+        "id": "4e4a0b6516c3f0cc",
+        "type": "tabs",
+        "dimension": 88.85172798216277,
+        "children": [
+          {
+            "id": "12cdf76b09a1a5fb",
             "type": "leaf",
             "state": {
               "type": "markdown",
               "state": {
-                "file": "复写零.md",
+                "file": "ret.md",
                 "mode": "source",
                 "source": false
               },
               "icon": "lucide-file",
-              "title": "复写零"
+              "title": "ret"
             }
           }
         ]
@@ -27,15 +50,15 @@
     "direction": "vertical"
   },
   "left": {
-    "id": "c497bc7d209532b0",
+    "id": "16eefc6f32ffc500",
     "type": "split",
     "children": [
       {
-        "id": "0bb95903004bcfdb",
+        "id": "0ceca24eb7c0ef5f",
         "type": "tabs",
         "children": [
           {
-            "id": "4c76a41df061a5b3",
+            "id": "eaf1885019f6fb78",
             "type": "leaf",
             "state": {
               "type": "file-explorer",
@@ -48,7 +71,7 @@
             }
           },
           {
-            "id": "03ee8b0129d4d420",
+            "id": "a2c7bc2f7bb6c981",
             "type": "leaf",
             "state": {
               "type": "search",
@@ -65,7 +88,7 @@
             }
           },
           {
-            "id": "6463e2beb15a2027",
+            "id": "9deee44e3e9abc43",
             "type": "leaf",
             "state": {
               "type": "bookmarks",
@@ -78,23 +101,24 @@
       }
     ],
     "direction": "horizontal",
-    "width": 300
+    "width": 300,
+    "collapsed": true
   },
   "right": {
-    "id": "0da6850279474441",
+    "id": "bc64f16851bfbe5a",
     "type": "split",
     "children": [
       {
-        "id": "ea48e842eaa2660d",
+        "id": "112d040327b58e2c",
         "type": "tabs",
         "children": [
           {
-            "id": "7e461c238f6a611f",
+            "id": "7c763b2bf223fa12",
             "type": "leaf",
             "state": {
               "type": "backlink",
               "state": {
-                "file": "复写零.md",
+                "file": "ret.md",
                 "collapseAll": false,
                 "extraContext": false,
                 "sortOrder": "alphabetical",
@@ -104,25 +128,25 @@
                 "unlinkedCollapsed": true
               },
               "icon": "links-coming-in",
-              "title": "复写零 的反向链接列表"
+              "title": "ret 的反向链接列表"
             }
           },
           {
-            "id": "eea4a5d6e3c89874",
+            "id": "12d16f722e99e715",
             "type": "leaf",
             "state": {
               "type": "outgoing-link",
               "state": {
-                "file": "复写零.md",
+                "file": "ret.md",
                 "linksCollapsed": false,
                 "unlinkedCollapsed": true
               },
               "icon": "links-going-out",
-              "title": "复写零 的出链列表"
+              "title": "ret 的出链列表"
             }
           },
           {
-            "id": "8172455b7ad12155",
+            "id": "ec813a5f86b6712e",
             "type": "leaf",
             "state": {
               "type": "tag",
@@ -137,7 +161,7 @@
             }
           },
           {
-            "id": "3fdea9b2203d7219",
+            "id": "36f28eeffb273819",
             "type": "leaf",
             "state": {
               "type": "all-properties",
@@ -151,18 +175,18 @@
             }
           },
           {
-            "id": "414d2b8bebffd159",
+            "id": "0955644da6c83be2",
             "type": "leaf",
             "state": {
               "type": "outline",
               "state": {
-                "file": "复写零.md",
+                "file": "ret.md",
                 "followCursor": false,
                 "showSearch": false,
                 "searchQuery": ""
               },
               "icon": "lucide-list",
-              "title": "复写零 的大纲"
+              "title": "ret 的大纲"
             }
           }
         ]
@@ -183,6 +207,6 @@
       "bases:新建数据库": false
     }
   },
-  "active": "cacd9d940f6c1ef8",
+  "active": "1c84df9e32531b83",
   "lastOpenFiles": []
 }
