@@ -617,3 +617,57 @@ class Solution {
 解释：给出的字符串不是 "croak" 的有效组合。
 
 > 数青蛙关键在于怎样判断每只青蛙“叫到了哪里”，或者说我们并不关系具体某一只青蛙的情况，我们在意的是叫到这个位置的青蛙的数目，我们通过一个数组代表每个字母，每当叫到一个位置时，就需要 croak 中上一个位置的青蛙来到当前位置，如果来不了（上个位置没有青蛙）那么就说明这个字符串数不出来青蛙；当出现 `c` （开头）时，我们就需要开始新的一轮，首先从 k 中轮换过来一只已经叫完的，如果没有，那么就需要再找来一只了
+
+# 七、分治_快排
+
+## 7.1 颜色划分
+
+给定一个包含红色、白色和蓝色、共 `n` 个元素的数组 `nums` ，**[原地](https://baike.baidu.com/item/%E5%8E%9F%E5%9C%B0%E7%AE%97%E6%B3%95)** 对它们进行排序，使得相同颜色的元素相邻，并按照红色、白色、蓝色顺序排列。
+
+我们使用整数 `0`、 `1` 和 `2` 分别表示红色、白色和蓝色。
+
+必须在不使用库内置的 sort 函数的情况下解决这个问题。
+
+**示例 1：**
+
+输入：nums =` [2,0,2,1,1,0]`
+输出：`[0,0,1,1,2,2]`
+
+**示例 2：**
+
+输入：nums = `[2,0,1]`
+输出：`[0,1,2]`
+
+---
+
+这道题使用可以采用类似于双指针的“三指针”解法。原因就是在任意处理过程中，都可以将数组划分为四个部分：
+
+```plaintext
+0 ... 0 1 ... 1 [unhandled] 2 ... 2
+    left        i         right
+```
+
+```java
+class Solution {
+	public void sortColors(int[] nums) {
+		int n = nums.length;
+		int left = -1, right = n;
+		for(int i = 0; i < right;){
+			if(nums[i] == 0){
+				swap(nums, ++left, i++);
+			}
+			else if(nums[i] == 1){
+				i++;
+			}
+			else{
+				swap(nums, --right, i);
+			}
+		}
+	}
+	void swap(int[] nums, int left, int right){
+		int tmp = nums[left];
+		nums[left] = nums[right];
+		nums[right] = tmp;
+	}
+}
+```
