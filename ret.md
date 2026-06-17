@@ -671,3 +671,161 @@ class Solution {
 	}
 }
 ```
+
+# 八、分治_归并
+
+归并可以用来解决在一个数组中解决若干个符合某种要求的数对。在递归中，首先要有黑盒的思想；其次，对于这个数组来说，我们相信全部落在左区间或右区间的数组都已经被处理了，只有分别落在数对左右区间的数对需要统计。对于这样的区间，其在相应区间里的顺序并不会影响数对的统计，所以我们就可以利用这种“顺序无关性”帮助我们进行统计
+
+结合归并排序的特点，在往buffer放元素时，可能会出现额外单放的情况，在这时需要通过排序顺序的选择来减轻逻辑复杂度
+
+---
+
+## 8.1 翻转对
+
+给定一个数组 `nums` ，如果 `i < j` 且 `nums[i] > 2*nums[j]` 我们就将 `(i, j)` 称作一个重要翻转对。
+
+你需要返回给定数组中的重要翻转对的数量。
+
+**示例 1:**
+
+**输入**: `[1,3,2,3,1]`
+**输出**: 2
+
+```java
+class Solution {
+	private int[] arr;
+	int ret = 0;
+	public int reversePairs(int[] record) {
+		int n = record.length;
+		arr = new int[n];
+		mergeSort(record, 0, n - 1);
+		return ret;
+	}
+	
+	void countPair(int[] nums, int left, int lend, int right, int rend){
+		while(left <= lend && right <= rend){
+			if(nums[left] > nums[right]){
+				ret += rend - right + 1;
+				left++;
+			}
+			else{
+				right++;
+			}
+		}
+	}
+	int mergeSort(int[] nums, int begin, int end){
+		if(begin >= end){
+			return 0;
+		}
+		int mid = (begin + end) / 2;
+		mergeSort(nums, begin, mid);
+		mergeSort(nums, mid + 1, end);
+		countPair(nums, begin, mid, mid + 1, end);
+		int left = begin, right = mid + 1;
+		int tmp = begin;
+		while(left <= mid && right <= end){
+			if(nums[left] <= nums[right]){
+				arr[tmp++] = nums[right++];
+			}
+			else{
+				arr[tmp++] = nums[left++];
+			}
+		}
+		while(left <= mid){
+			arr[tmp++] = nums[left++];
+		}
+		while(right <= end){
+			arr[tmp++] = nums[right++];
+		}
+		for(int i = begin; i <= end; i++){
+			nums[i] = arr[i];
+		}
+		return ret;
+	}
+}
+```
+
+这题就是完美体现归并用处：
+
+---
+## 8.2 计算右侧小于当前元素的个数
+
+给你一个整数数组 `nums` ，按要求返回一个新数组 `counts` 。数组 `counts` 有该性质： `counts[i]` 的值是  `nums[i]` 右侧小于 `nums[i]` 的元素的数量。
+
+**示例 1：**
+
+输入：nums = `[5,2,6,1]`
+输出：`[2,1,1,0]`  
+
+**解释：**
+5 的右侧有 **2** 个更小的元素 (2 和 1)
+2 的右侧仅有 **1** 个更小的元素 (1)
+6 的右侧有 **1** 个更小的元素 (1)
+1 的右侧有 **0** 个更小的元素
+
+```java
+class Solution {
+	private int[] arr;
+	private int[] ret;
+	private int[] index_tmp;
+	private int[] index;
+	public List<Integer> countSmaller(int[] nums) {
+		int n = nums.length;
+		arr = new int[n];
+		ret = new int[n];
+		index_tmp = new int[n];
+		index = new int[n];
+		for(int i = 0; i < n; i++){
+			index[i] = i;
+		}
+		mergeSort(nums, 0, n - 1);
+		List<Integer> ret_list = new ArrayList<>();
+		for(int i = 0; i < n; i++){
+			ret_list.add(ret[i]);
+		}
+		return ret_list;
+	}
+	
+	void mergeSort(int[] nums, int begin, int end){
+		if(begin >= end){
+			return;
+		}
+		int mid = (begin + end) / 2;
+		mergeSort(nums, begin, mid);
+		mergeSort(nums, mid + 1, end);
+		int left = begin, right = mid + 1;
+		int tmp = begin;
+		while(left <= mid && right <= end){
+			if(nums[left] <= nums[right]){
+				arr[tmp] = nums[right];
+				index_tmp[tmp] = index[right];
+				tmp++; right++;
+			}
+			else{
+				ret[index[left]] += end - right + 1;
+				index_tmp[tmp] = index[left];
+				arr[tmp] = nums[left];
+				tmp++; left++;
+			}
+		}
+		while(left <= mid){
+			arr[tmp] = nums[left];
+			index_tmp[tmp] = index[left];
+			tmp++; left++;
+		}
+		while(right <= end){
+			arr[tmp] = nums[right];
+			index_tmp[tmp] = index[right];
+			tmp++; right++;
+		}
+		for(int i = begin; i <= end; i++){
+			nums[i] = arr[i];
+			index[i] = index_tmp[i];
+		}
+	}
+}
+```
+
+关键在于归并排序会导致下标错位，所以需要一个额外的数组在排序时保存下标的映射关系，同时需要在所有对原数组操作的同时对下标数组也做出对等的操作，保证位置的同步。至于每个位置结果的存放，就需要通过下标数组找到对应的原始下标再记录结果了
+
+---
