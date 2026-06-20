@@ -829,3 +829,39 @@ class Solution {
 关键在于归并排序会导致下标错位，所以需要一个额外的数组在排序时保存下标的映射关系，同时需要在所有对原数组操作的同时对下标数组也做出对等的操作，保证位置的同步。至于每个位置结果的存放，就需要通过下标数组找到对应的原始下标再记录结果了
 
 ---
+
+# 九、哈希表
+
+1. 哈希表不一定是标准库提供的容器，也可以是通过位图、整形数组的方式代替，尤其是只有小写字母或者数据范围固定的情况下
+
+2. 哈希表的最主要目的就是映射（优化遍历查找）
+
+## 9.1 字母异位词分组
+
+给你一个字符串数组，请你将 字母异位词 组合在一起。可以按任意顺序返回结果列表。
+
+```java
+class Solution {
+    public List<List<String>> groupAnagrams(String[] strs) {
+        List<List<String>> rets = new ArrayList<>();
+        HashMap<String, List<String>> hash = new HashMap<>();
+        for(int i = 0; i < strs.length; i++){
+            char[] tmp = strs[i].toCharArray();
+            Arrays.sort(tmp);
+            String s = new String(tmp);
+            if(hash.containsKey(s)){
+                hash.get(s).add(strs[i]);
+            }
+            else{
+                List<String> item = new ArrayList<>();
+                hash.put(s, item);
+                item.add(strs[i]);
+            }
+        }
+        rets.addAll(hash.values());
+        return rets;
+    }
+}
+```
+
+把这道题选进来，就是这里对于异位词的处理：对于异位词而言，其所含字母的种类和数量都是相同的，所以排序之后得到的字符串也是相同的，因此他们可以被映射到同一个String数组中
