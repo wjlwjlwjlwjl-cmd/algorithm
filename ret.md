@@ -863,3 +863,112 @@ class Solution {
 ```
 
 把这道题选进来，就是这里对于异位词的处理：对于异位词而言，其所含字母的种类和数量都是相同的，所以排序之后得到的字符串也是相同的，因此他们可以被映射到同一个String数组中
+
+# 十、字符串
+
+这里其实没有什么固定的思想或者说套路，大多通过类似模拟的方式就可以解决了（但模拟的对象是自己的解法）
+
+## 10.1 最长回文子串
+
+给你一个字符串 s，找到 s 中最长的 回文 子串。
+
+示例 1：
+
+输入：s = "babad"
+输出："bab"
+解释："aba" 同样是符合题意的答案。
+
+```java
+class Solution {
+    public String longestPalindrome(String s) {
+        int n = s.length();
+        String ret = "";
+        for(int i = 0; i < n; i++){
+            int left = i;
+            int right = left;
+            while(left >= 0 && right <= n - 1 && s.charAt(left) == s.charAt(right)){
+                left--;
+                right++;
+            }
+            int tmp = right - left - 1;
+            if(tmp > ret.length()){
+                ret = s.substring(left + 1, right);
+            }
+            if(i == n - 1){
+                break;
+            }
+            right = i + 1;
+            left = i;
+            while(left >= 0 && right <= n - 1 && s.charAt(left) == s.charAt(right)){
+                left--;
+                right++;
+            }
+            if(left + 1 == right && s.charAt(left) != s.charAt(right)){
+                continue;
+            }
+            tmp = right - left - 1;
+            if(tmp > ret.length()){
+                ret = s.substring(left + 1, right);
+            }
+        }
+        return ret;
+    }
+}
+```
+
+选这道题主要是为了介绍“中心拓展算法”。回文串具有一个中心（奇数长度是一个字符，偶数长度是两个相同字符），基于此我们就可以去遍历每一个中心，并记录得到的最长得回文串
+
+---
+
+## 10.2 字符串相乘
+
+给定两个以字符串形式表示的非负整数 num1 和 num2，返回 num1 和 num2 的乘积，它们的乘积也表示为字符串形式。
+
+```java
+class Solution {
+    public String multiply(String num1, String num2) {
+        if(num1.equals("0") || num2.equals("0")){
+            return "0";
+        }
+        int m = num1.length(),  n = num2.length();
+        int[] arr = new int[m + n - 1];
+        StringBuilder sb1 = new StringBuilder(num1);
+        StringBuilder sb2 = new StringBuilder(num2);
+        num1 = sb1.reverse().toString();
+        num2 = sb2.reverse().toString();
+        for(int i = 0; i < m; i++){
+            for(int j = 0; j < n; j++){
+                int val1 = num1.charAt(i) - '0';
+                int val2 = num2.charAt(j) - '0';
+                arr[i + j] += val1 * val2;
+            }
+        }
+        StringBuilder ret = new StringBuilder();
+        int tmp = 0;
+        for(int i = 0; i < arr.length; i++){
+            int val = arr[i] + tmp;
+            int num = val % 10;
+            tmp = val / 10;
+            ret.append(num + "");
+        }
+        if(tmp != 0){
+            ret.append(tmp + "");
+        }
+        return ret.reverse().toString();
+    }
+}
+```
+
+首先肯定是可以模拟竖式运算来完成的，但是太麻烦。对于乘法，我们可以使用无进制相乘，具体过程为：和竖式运算一样，每一位对应相乘，但是每一位上不写个位数字，而是直接写这个运算结果，每一位上也不进位
+
+```text
+123 * 456 
+      1 2 3 
+      4 5 6 
+    --------
+      6 12 18
+    5 10 15
+  4 8 12
+    ---------
+  5 6 0 8 8
+```
