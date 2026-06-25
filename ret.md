@@ -972,3 +972,240 @@ class Solution {
     ---------
   5 6 0 8 8
 ```
+
+
+---
+
+# 十一、栈
+
+## 11.1 基本计算器
+
+给你一个字符串表达式 s ，请你实现一个基本计算器来计算并返回它的值。
+
+整数除法仅保留整数部分。
+
+你可以假设给定的表达式总是有效的。所有中间结果将在 [-231, 231 - 1] 的范围内。
+
+```java
+class Solution {
+    private int i = 0;
+    public int calculate(String s) {
+        int n = s.length();
+        int ret = 0;
+        char op = '+';
+        Stack<Integer> st = new Stack<>();
+        for(; i < n;){
+            char ch = s.charAt(i);
+            if(ch == ' '){
+                i++;
+                continue;
+            }
+            if(ch >= '0' && ch <= '9'){
+                int val = getNum(s);
+                if(op == '+'){
+                    st.add(val);
+                }
+                else if(op == '-'){
+                    st.add(0 - val);
+                }
+                else if(op == '*'){
+                    int val2 = st.peek();
+                    st.pop();
+                    st.add(val2 * val);
+                }
+                else{
+                    int val2 = st.peek();
+                    st.pop();
+                    st.add(val2 / val);
+                }
+            }
+            else{
+                if(ch == '+'){
+                    op = '+';
+                }
+                else if(ch == '-'){
+                    op = '-';
+                }
+                else if(ch == '*'){
+                    op = '*';
+                }
+                else{
+                    op = '/';
+                }
+                i++;
+            }
+        }
+        while(!st.isEmpty()){
+            int val = st.peek();
+            st.pop();
+            ret += val;
+        }
+        return ret;
+    }
+
+    public int getNum(String s){
+        //1234
+        int ret = 0;
+        while(i < s.length() && s.charAt(i) >= '0' && s.charAt(i) <= '9'){
+            ret *= 10;
+            ret += s.charAt(i) - '0';
+            i++;
+        }
+        return ret;
+    }
+}
+```
+
+这道题我们的处理思路是：把所有乘除法、减法都处理为结果，最后通过加法的方式获得最终结果。这时，栈的作用就出现了：栈可以让我们始终取到最近的若干个元素，而我们每次要进行乘法、除法的时候需要获取的都是最前面的**一个**数。
+
+---
+
+## 11.2 字符串解码
+
+给定一个经过编码的字符串，返回它解码后的字符串。
+
+编码规则为: k`[encoded_string]`，表示其中方括号内部的 encoded_string 正好重复 k 次。注意 k 保证为正整数。
+
+你可以认为输入字符串总是有效的；输入字符串中没有额外的空格，且输入的方括号总是符合格式要求的。
+
+此外，你可以认为原始数据不包含数字，所有的数字只表示重复的次数 k ，例如不会出现像 3a 或 2`[4]` 的输入。
+
+测试用例保证输出的长度不会超过 105。
+
+示例 1：
+
+输入：s = "`3[a]2[bc]`"
+输出："aaabcbc"
+示例 2：
+
+输入：s = "`3[a2[c]]`"
+输出："accaccacc"
+示例 3：
+
+输入：s = "`2[abc]3[cd]ef`"
+输出："abcabccdcdcdef"
+
+```java
+class Solution {
+    int index = 0;
+    String s = "";
+    int n = 0;
+    String ret = "";
+    public String decodeString(String str) {
+        s = str;
+        n = str.length();
+        Stack<Integer> st_num = new Stack<>();
+        Stack<String> st_str = new Stack<>();
+        st_str.add("");
+        while(index < n){
+            char ch = str.charAt(index);
+            if(ch == '['){
+                index++;
+                String tmp = getStr();
+                st_str.add(tmp);
+            }
+            else if(ch == ']'){
+                int cnt = st_num.peek();
+                st_num.pop();
+                String tmp = st_str.peek();
+                st_str.pop();
+                StringBuilder sb = new StringBuilder(st_str.peek());
+                st_str.pop();
+                while(cnt-- != 0){
+                    sb.append(tmp);
+                }
+                st_str.add(sb.toString());
+                index++;
+            }
+            else if(ch >= '0' && ch <= '9'){
+                st_num.add(getNum());
+            }
+            else{
+                String tmp = getStr();
+                StringBuilder sb = new StringBuilder(st_str.peek());
+                st_str.pop();
+                sb.append(tmp);
+                st_str.add(sb.toString());
+            }
+        }
+        return st_str.peek();
+    }
+
+    private int getNum(){
+        int ret = 0;
+        while(index < n && s.charAt(index) >= '0' && s.charAt(index) <= '9'){
+            ret *= 10;
+            ret += s.charAt(index) - '0';
+            index++;
+        }
+        return ret;
+    }
+
+    private String getStr(){
+        StringBuilder sb = new StringBuilder();
+        while(index < n && s.charAt(index) >= 'a' && s.charAt(index) <= 'z'){
+            sb.append(s.charAt(index));
+            index++;
+        }
+        return sb.toString();
+    }
+}
+```
+
+这个题算是栈的题目里很复杂的题目了，我们的思路是：从内到外完成解析（这一部分通过栈来保证），如果遇到数字那么就保存到数字的栈里；如果遇到了`[`，那么接下来跟的一定是准备开始解析的新的一段字符串（放到栈顶的），如果是`]`，就说明当前栈顶的字符串的解析已经完成了一部分（具备了解析字段的重复部分和次数），就需要把内容追加到站定元素后面；如果是直接遇到了字符串，那么这部分是对于当前栈顶字符串来说不需要重复的部分，直接添加的栈顶字符串中（因为另一种出现字符，即遇到 `[` 的下一个位置，已经被我们在 `[` 的地方处理了）
+
+另外在我们的方法里，当前解析的内容最后都放到了栈顶字符串的下一个中，所有在开始解析字符串以前首先往栈里添加一个空串，用来存放最终结果
+
+# 十二、二叉树的层序遍历
+
+## 12.1 二叉树的最大宽度
+
+给你一棵二叉树的根节点 root ，返回树的 最大宽度 。
+
+树的 最大宽度 是所有层中最大的 宽度 。
+
+每一层的 宽度 被定义为该层最左和最右的非空节点（即，两个端点）之间的长度。将这个二叉树视作与满二叉树结构相同，两端点间会出现一些延伸到这一层的 null 节点，这些 null 节点也计入长度。
+
+```java
+class Solution {
+    public class Pair{
+        TreeNode node;
+        int index;
+        Pair(TreeNode node, int index){
+            this.node = node;
+            this.index = index;
+        }
+    }
+    public int widthOfBinaryTree(TreeNode root) {
+        if (root == null) {
+            return 0;
+        }
+        long ret = 0;
+        List<Pair> queue = new ArrayList<>();
+        Pair pair = new Pair(root, 0);
+        queue.add(pair);
+        while(!queue.isEmpty()){
+            int cnt = queue.size();
+            int leftI = queue.get(0).index;
+            int rightI = queue.get(cnt - 1).index;
+            ret = Math.max(ret, rightI - leftI + 1);
+
+            List<Pair> tmp = new ArrayList<>();
+            for(Pair p: queue){
+                TreeNode node = p.node;
+                int index = p.index;
+                if(node.left != null){
+                    tmp.add(new Pair(node.left, index * 2 + 1));
+                }
+                if(node.right != null){
+                    tmp.add(new Pair(node.right, index * 2 + 2));
+                }
+            }
+            queue = tmp;
+        }
+        return (int)ret;
+    }
+}
+```
+
+选这道题更多是为了展现 Java 算法题中数据结构的使用思路。在 Java 中，使用各种数据结构作为存储数据的容器时，C++中的容器适配器的思想就更加明显。比如我们这里通过把节点和下标绑定（C++中我们可以直接使用 std::pair，但是Java中我们只能手搓了），同时我们又需要随机访问“队列”每一层的起止 Pair，所以我们使用ArrayList来代替队列；同时我们又需要把“队列”提供给下一层的遍历，所以我们采取临时容器的方式，完成一层的“入队列”操作后，就用临时队列代替原队列
