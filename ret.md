@@ -1209,3 +1209,166 @@ class Solution {
 ```
 
 选这道题更多是为了展现 Java 算法题中数据结构的使用思路。在 Java 中，使用各种数据结构作为存储数据的容器时，C++中的容器适配器的思想就更加明显。比如我们这里通过把节点和下标绑定（C++中我们可以直接使用 std::pair，但是Java中我们只能手搓了），同时我们又需要随机访问“队列”每一层的起止 Pair，所以我们使用ArrayList来代替队列；同时我们又需要把“队列”提供给下一层的遍历，所以我们采取临时容器的方式，完成一层的“入队列”操作后，就用临时队列代替原队列
+
+# 十三、堆
+
+## 13.1 关于大小根堆的自定义比较器
+
+### 13.1.1 Java
+
+Java 中，堆的自定义比较器规则和排序算法的一样，都是返回 e1 - e2，则排升序（或者是等价写法 `e1.compareTo(e2)`），对于堆来说，就是排小根堆（Java默认）；返回 `e2 - e1`，则排降序（或者是等价写法 `e2.compareTo(e1)`），对于堆来说，就是排大根堆
+
+### 13.1.2 C++
+
+C++ 中，堆的自定义比较器规则和排序算法的相反。
+
+对于排序算法，可以简记：看大小于号的上半部分，如果是上升的，例如 `return e1 < e2;`，那么就是排升序；如果是下降的，例如 `return e1 > e2`，那么就是排降序
+
+对于堆来说，规则正好相反，依然看大小于号的上半部分：如果是上升的，例如 `return e1 < e2`，那么排的就是层与层之间的降序关系，也就是大根堆（C++默认），如果是下降的，例如 `return e1 > e2`，那么排的就是层级之间的升序关系，也就是小根堆
+
+另外，对于 stl 中提供的两个比较器，`std::greater<>` 和 `std::less<>` ，分别对应 `return e1 > e2` 和 `return e1 < e2`，如果没有自定义比较器的需求（如实现结构体之间的比较规则），可以等价使用
+
+---
+
+## 13.2 前 k 个高频单词
+
+给定一个单词列表 words 和一个整数 k ，返回前 k 个出现次数最多的单词。
+
+返回的答案应该按单词出现频率由高到低排序。如果不同的单词有相同出现频率， 按字典顺序 排序。
+
+示例 1：
+
+输入: words = `["i", "love", "leetcode", "i", "love", "coding"]`, k = 2
+输出: `["i", "love"]`
+解析: "i" 和 "love" 为出现次数最多的两个单词，均为2次。
+    注意，按字母顺序 "i" 在 "love" 之前。
+
+```java
+class Solution {
+    private class Pair {
+        String word;
+        int cnt;
+
+        Pair(String word, int cnt) {
+            this.word = word;
+            this.cnt = cnt;
+        }
+    }
+
+    public List<String> topKFrequent(String[] words, int k) {
+        int n = words.length;
+        List<String> rets = new ArrayList<>();
+        PriorityQueue<Pair> pq = new PriorityQueue<>((Pair p1, Pair p2) -> {
+            if (p1.cnt == p2.cnt) {
+                return p2.word.compareTo(p1.word);
+            } else {
+                return p1.cnt - p2.cnt;
+            }
+        });
+
+        HashMap<String, Pair> hash = new HashMap<>();
+        for (int i = 0; i < words.length; i++) {
+            if (hash.containsKey(words[i])) {
+                hash.get(words[i]).cnt++;
+            } else {
+                hash.put(words[i], new Pair(words[i], 1));
+            }
+        }
+
+        for (Pair p : hash.values()) {
+            pq.add(p);
+            if (pq.size() > k) {
+                pq.poll();
+            }
+        }
+
+        while (!pq.isEmpty()) {
+            rets.add(pq.poll().word);
+        }
+        Collections.reverse(rets);
+        return rets;
+    }
+}
+```
+
+堆的算法题里，主要涉及两种知识点：
+
+1. 自定义比较器的设计 
+2. 堆的设计 
+
+在这道题中，选出前 k 个大元素，最简单的做法就是让我们的堆是一个小根堆，并且大小始终不超过 k，只要超过了k，就把堆顶的元素删除（堆顶的元素在小根堆中是最小的，这样不断筛选出堆中的最小元素，最后，所有元素都进入过堆之后，堆中剩下的元素就是前 k 大的元素）
+
+---
+
+## 13.3 数据流的中位数
+
+中位数是有序整数列表中的中间值。如果列表的大小是偶数，则没有中间值，中位数是两个中间值的平均值。
+
+例如 arr = `[2,3,4]` 的中位数是 3 。
+例如 arr = `[2,3]` 的中位数是 (2 + 3) / 2 = 2.5 。
+实现 MedianFinder 类:
+
+MedianFinder() 初始化 MedianFinder 对象。
+
+void addNum(int num) 将数据流中的整数 num 添加到数据结构中。
+
+double findMedian() 返回到目前为止所有元素的中位数。与实际答案相差 10-5 以内的答案将被接受。
+
+示例 1：
+
+输入
+`["MedianFinder", "addNum", "addNum", "findMedian", "addNum", "findMedian"]`
+`[[], [1], [2], [], [3], []]`
+输出
+`[null, null, null, 1.5, null, 2.0]`
+
+```java
+class MedianFinder {
+    private PriorityQueue<Integer> pq_br;
+    private PriorityQueue<Integer> pq_sr;
+    //1 6 4 2 6 2 
+    public MedianFinder() {
+        pq_br = new PriorityQueue<>(Collections.reverseOrder());
+        pq_sr = new PriorityQueue<>();
+    }
+    
+    public void addNum(int num) {
+        int m = pq_br.size();
+        int n = pq_sr.size();
+        if(m == n){
+            if(m == 0 || pq_br.peek() >= num){
+                pq_br.add(num);
+            }
+            else{
+                pq_sr.add(num);
+                pq_br.add(pq_sr.peek());
+                pq_sr.poll();
+            }
+        }
+        else{ //m == n + 1
+            if(pq_br.peek() >= num){
+                pq_br.add(num);
+                pq_sr.add(pq_br.peek());
+                pq_br.poll();
+                
+            }
+            else{
+                pq_sr.add(num);
+            }
+        }
+    }
+    
+    public double findMedian() {
+        int m = pq_br.size();
+        int n = pq_sr.size();
+        if(m == n){
+            return (pq_br.peek() + pq_sr.peek()) / 2.0;
+        }
+        else{
+            return pq_br.peek();
+        }
+    }
+}
+```
+
+这道题我们采取两个堆结合的方式来寻找中位数。一个是大根堆，用来存中位数及比它小的元素；一个是小根堆，用来存比中位数大的元素
