@@ -7,6 +7,7 @@ import java.util.PriorityQueue;
 import java.util.Stack;
 import java.util.Queue;
 import java.util.ArrayDeque;
+import java.util.HashSet;
 
 public class Test {
     public static void main(String[] args) {
@@ -33,59 +34,49 @@ class TreeNode {
 }
 
 class Solution {
-    public List<List<Integer>> zigzagLevelOrder(TreeNode root) {
-        if (root == null) {
-            return new LinkedList<>();
-        }
-        int flag = 0; // 0 left, 1 right
-        Queue<TreeNode> q = new LinkedList<>();
-        q.add(root);
-        List<List<Integer>> ret = new ArrayList<>();
-        while (!q.isEmpty()) {
-            int cnt = q.size();
-            List<Integer> tmp = new ArrayList<>();
-            while (cnt-- != 0) {
-                TreeNode node = q.peek();
-                q.poll();
-                tmp.add(node.val);
-                q.add(node.left);
-                q.add(node.right);
-            }
-            if (flag == 0) {
-                flag = 1;
-                ret.add(tmp);
-            } else {
-                flag = 0;
-                Collections.reverse(tmp);
-                ret.add(tmp);
-            }
-        }
-        return ret;
-    }
-
-    public int widthOfBinaryTree(TreeNode root) {
-        if (root == null) {
+    public int minMutation(String startGene, String endGene, String[] bank) {
+        int ret = 0;
+        int m = bank.length;
+        if(startGene.equals(endGene)){
             return 0;
         }
-        int ret = 0;
-        Queue<TreeNode> q = new LinkedList<>();
-        q.add(root);
-        while (!q.isEmpty()) {
-            int cnt = q.size();
-            ret = Math.max(cnt, ret);
-            List<Integer> list = new ArrayList<>();
-            while (cnt-- != 0) {
-                TreeNode node = q.peek();
-                q.poll();
-                list.add(node.val);
-                if (node.left != null) {
-                    q.add(node.left);
-                }
-                if (node.right != null) {
-                    q.add(node.right);
+        if(m == 0){
+            return 0;
+        }
+        String ds = "ACGT";
+        Queue<String> q = new LinkedList<>();
+        HashSet<String> hash = new HashSet<>();
+        HashSet<String> hashQ = new HashSet<>();
+        for(String str: bank){
+            hash.add(str);
+        }
+        q.add(startGene);
+        hashQ.add(startGene);
+
+        while(!q.isEmpty()){
+            ret++;
+            int size = q.size();
+            while(size-- != 0){
+                String s = q.poll();
+                for(int i = 0; i < 8; i++){
+                    for(int j = 0; j < 4; j++){
+                        char[] tmp = s.toCharArray();
+                        tmp[i] = ds.charAt(j);
+                        String st = new String(tmp);
+                        if(hashQ.contains(st)){
+                            continue;
+                        }
+                        hashQ.add(st);
+                        if(endGene.equals(st)){
+                            return ret;
+                        }
+                        if(hash.contains(st)){
+                            q.add(st);
+                        }
+                    }
                 }
             }
         }
-        return ret;
+        return -1;
     }
 }
