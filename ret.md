@@ -203,7 +203,7 @@ while(left < right){
 
 //找右边界
 while(left < right){
-    int mid = left + (right - left) / 2;
+    int mid = left + (right - left + 1) / 2;
     if(nums[mid] > target){
         right = mid - 1;
     }
@@ -1389,3 +1389,103 @@ class MedianFinder {
 这道题就不写代码了，选这道题的主要原因是强调**正难则反**的思路。如果直接找整个区域中的 `O` 并判断区域是否全部在非边界上的话，写的比较麻烦，需要用额外的数据结构保存每个区域中的位置，并判断是否需要反转。
 
 更好的做法是直接遍历边界，把所有在边界上能通过 bfs 遍历到的 `O` 都设置为其他符号（比如 `.`），最后再恢复就好了
+
+## 十五、BFS解决最短路问题
+
+通过bfs解决最短路问题，就是通过类似落到水面的水滴激起的波纹一样，向四周暴力查找，最先找到的路径就是最短路径
+
+---
+
+### 15.1 为高尔夫比赛砍树
+
+你被请来给一个要举办高尔夫比赛的树林砍树。树林由一个 m x n 的矩阵表示， 在这个矩阵中：
+
+0 表示障碍，无法触碰
+1 表示地面，可以行走
+比 1 大的数 表示有树的单元格，可以行走，数值表示树的高度
+每一步，你都可以向上、下、左、右四个方向之一移动一个单位，如果你站的地方有一棵树，那么你可以决定是否要砍倒它。
+
+你需要按照树的高度从低向高砍掉所有的树，每砍过一颗树，该单元格的值变为 1（即变为地面）。
+
+你将从 (0, 0) 点开始工作，返回你砍完所有树需要走的最小步数。 如果你无法砍完所有的树，返回 -1 。
+
+可以保证的是，没有两棵树的高度是相同的，并且你至少需要砍倒一棵树。
+
+```java
+class Solution {
+    private int m = 0, n = 0;
+    private static int[] dx = {1, -1, 0, 0};
+    private static int[] dy = {0, 0, 1, -1};
+    public int cutOffTree(List<List<Integer>> forest) {
+        m = forest.size(); n = forest.get(0).size();
+        List<int[]> trees = new ArrayList<>();
+
+        for(int x = 0; x < m; x++){
+            for(int y = 0; y < n; y++){
+                if(forest.get(x).get(y) != 0){
+                    int[] t1 = {x, y};
+                    trees.add(t1);
+                }
+            }
+        }
+
+        trees.sort((int[] i1, int[] i2)->{
+            return forest.get(i1[0]).get(i1[1]) - forest.get(i2[0]).get(i2[1]);
+        });
+        int ret = 0;
+        int[] prev = {0, 0};
+
+        for(int i = 0; i < trees.size(); i++){
+            if(forest.get(trees.get(i)[0]).get(trees.get(i)[1]) == 1){
+                continue;
+            }
+            int tmp = bfs(forest, prev, trees.get(i));
+            prev = trees.get(i);
+            if(tmp == -1){
+                return -1;
+            }
+            ret += tmp;
+        }
+        
+        return ret;
+    }
+
+    public int bfs(List<List<Integer>> forest, int[] start, int[] end){
+        Queue<int[]> q = new LinkedList<>();
+        if(start[0] == end[0] && start[1] == end[1]){
+            return 0;
+        }
+        boolean[][] vis = new boolean[m][n];
+        q.add(start);
+        int ret = 0;
+        while(!q.isEmpty()){
+            ret++;
+            int sz = q.size();
+            while(sz-- != 0){
+                int[] t1 = q.poll();
+                if(vis[t1[0]][t1[1]] == true){
+                    continue;
+                }
+                vis[t1[0]][t1[1]] = true;
+                for(int k = 0; k < 4; k++){
+                    int a = t1[0] + dx[k], b = t1[1] + dy[k];
+                    if(a >= 0 && a < m && b >= 0 && b < n && forest.get(a).get(b) != 0 && !vis[a][b]){
+                        if(forest.get(a).get(b) == forest.get(end[0]).get(end[1])){
+                            return ret;
+                        }
+                        int[] t2 = {a, b};
+                        q.add(t2);
+                    }
+                }
+            }
+        }
+        return -1;
+    }
+}
+```
+
+这道题主要有两点需要注意
+
+1. 自定义比较器的使用。
+
+2. 题中已经说明，每棵树高度不会重复，并且要从低到高砍树，那么我们砍树的顺序其实就是固定的。这意味着，这个问题可以转化为若干个最短路径问题
